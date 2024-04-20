@@ -1,9 +1,10 @@
 
 import { ConfigModule, ConfigService } from '@nestjs/config'; // For environment variables (optional)
-import { UserModule } from './user/user.module';
 import { Module } from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 // import { MongooseModule, Schema } from '@nestjs/mongoose';
+import { ProductModule } from './product/product.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -17,7 +18,7 @@ import {MongooseModule} from '@nestjs/mongoose';
     //   inject: [ConfigService],
     // })
     MongooseModule.forRoot('mongodb://localhost:27017/nest-lifelink')
-    , UserModule,
+    , ProductModule, AuthModule,
   ],
   
 })
