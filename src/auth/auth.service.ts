@@ -47,6 +47,7 @@ export class AuthService {
     })
 
     console.log(password)
+    console.log(process.env.PORT)
     
 
     if(!user)
@@ -56,7 +57,7 @@ export class AuthService {
        throw new UnauthorizedException('Not valid credentials (password)')
 
     const {name}=user;
-    return {email,name};
+    return {name,email};
 
     //TODO: retornat el jwt
 

@@ -5,10 +5,13 @@ import {MongooseModule} from '@nestjs/mongoose';
 // import { MongooseModule, Schema } from '@nestjs/mongoose';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
+import 'dotenv/config';
+
 
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     // Adjust path if needed
     // MongooseModule.forRootAsync(
     //   {
@@ -17,8 +20,13 @@ import { AuthModule } from './auth/auth.module';
     //   }),
     //   inject: [ConfigService],
     // })
-    MongooseModule.forRoot('mongodb://localhost:27017/nest-lifelink')
-    , ProductModule, AuthModule,
+    
+    MongooseModule.forRoot(
+      // 'mongodb://localhost:27017/nest-lifelink'
+      process.env.DB_HOST
+    ),
+    ProductModule, 
+    AuthModule,
   ],
   
 })
