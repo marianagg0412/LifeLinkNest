@@ -17,15 +17,16 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
     try {
-      return this.authService.create(createUserDto);
+      return await this.authService.create(createUserDto);
     } catch (error) {
-      if (error.code === 11000) {
-        throw new BadRequestException('Email already in use.');
-      }
-      throw error; // rethrow the error if it is not a duplicate key error
+      return this.handleCreateError(error);
     }
+  }
+
+  private handleCreateError(error: any) {
+      throw new BadRequestException('Failed to create user.');
   }
 
   @Post('login')

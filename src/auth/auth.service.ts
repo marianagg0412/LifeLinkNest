@@ -42,7 +42,6 @@ export class AuthService {
 
     //console.log(password)
     console.log(process.env.PORT);
-    console.log('pasó info');
 
     if (!user) throw new UnauthorizedException('Not valid credentials');
 
@@ -58,9 +57,14 @@ export class AuthService {
   private handleDBErrors(error: any): never {
     if (error.code === 11000) {
       throw new BadRequestException(
-        'Duplicate key error: Some data such as email or phone number already exists.',
+        'Duplicate key error: Algún dato asociado ya está vinculado con otra cuenta',
       );
-    }
+    } 
+    // else if (error.code === 400){
+    //   throw new BadRequestException(
+    //     'Duplicate key error: Some data such as email or phone number already exists.',
+    //   );
+    // }
     console.log(error);
     throw new InternalServerErrorException('Please check your logs');
   }

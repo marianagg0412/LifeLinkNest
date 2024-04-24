@@ -35,7 +35,7 @@ export class User extends Document {
   docnum: string;
 
   @Prop({
-    unique: true,
+    //unique: true,
     // index: true,
   })
   phone: string;
