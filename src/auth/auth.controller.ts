@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
-
 
 @Controller('auth')
 export class AuthController {
@@ -9,12 +18,18 @@ export class AuthController {
 
   @Post('register')
   create(@Body() createUserDto: CreateUserDto) {
-    return this.authService.create(createUserDto);
-  }
-  
-  @Post('login')
-  loginUser(@Body() loginUserDto: LoginUserDto){
-    return this.authService.login(loginUserDto);
+    try {
+      return this.authService.create(createUserDto);
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException('Email already in use.');
+      }
+      throw error; // rethrow the error if it is not a duplicate key error
+    }
   }
 
+  @Post('login')
+  loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
+  }
 }
