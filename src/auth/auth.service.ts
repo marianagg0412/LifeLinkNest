@@ -6,6 +6,9 @@ import { LoginUserDto } from './dto';
 import { IsEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { JwtPayload } from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 
 
@@ -13,24 +16,41 @@ export class AuthService {
 
   constructor(
     @InjectModel(User.name)
-    private readonly userModel:Model<User>
+    private readonly userModel:Model<User>,
+
+    private readonly jwtService: JwtService,
   ){}
 
   async create(createUserDto: CreateUserDto) {
     try{
 
-      const {password, ...userData}= createUserDto;
+      const {docnum_type, docnum, password, ...userData}= createUserDto;
+
+      if((docnum_type==='CC' || docnum_type==='CE') && isNaN(+docnum)){
+        console.log('entro')
+        throw new BadRequestException('Must be a number')
+
+      }
 
       const user = await this.userModel.create({
         ...userData,
+        docnum_type,
+        docnum,
         password: bcrypt.hashSync(password,10),
         //encriptar
       });
+
+      console.log(docnum_type, docnum)
+
+     
+
+      
 
       const {name, email, phone}=user;
       return {name, email, phone};
 
     }catch(error){
+      console.log(error)
       this.handleDBErrors(error);
 
     }
@@ -57,20 +77,36 @@ export class AuthService {
        throw new UnauthorizedException('Not valid credentials (password)')
 
     const {name}=user;
-    return {name,email};
+    return {
+      name,
+      email,
+      token: this.getJwtToken({id: user.id})
+    };
 
     //TODO: retornat el jwt
 
-  
+  }
 
-}
+  async checkAuthStatus(user:User){
+    return{
+      ...user,
+      token: this.getJwtToken({id: user.id})
+    };
+  }
+
+  private getJwtToken(payload: JwtPayload){
+    const token= this.jwtService.sign(payload);
+    return token;
+  }
 
 
 
   private handleDBErrors(error:any): never{
     if(error.code === '23505')
       throw new BadRequestException(error.detail)
-    console.log(error)
+    if(error.code === '400')
+       throw new BadRequestException('c')
+    console.log(error.code)
 
     throw new InternalServerErrorException('pls check your logs')
   }

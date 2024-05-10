@@ -31,8 +31,14 @@ export class User extends Document {
     lastname: string;
 
     @Prop({
+        // select:false,
+        // index: true,
+    })
+    docnum_type: string;
+
+    @Prop({
         unique: true,
-        sparse:true
+        // sparse:true
         // index: true,
     })
     docnum: string;
@@ -41,7 +47,7 @@ export class User extends Document {
         unique: true,
         // index: true,
     })
-    phone: string;
+    phone: number;
 
     @Prop({
         default: false,

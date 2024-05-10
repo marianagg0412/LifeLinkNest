@@ -5,14 +5,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy} from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   imports: [
-    // ConfigModule,
+    ConfigModule,
     MongooseModule.forFeature([
       {
         name: User.name,
@@ -35,5 +36,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }
     })
   ],
+  exports: [JwtStrategy, JwtModule, PassportModule, MongooseModule]
 })
 export class AuthModule {}

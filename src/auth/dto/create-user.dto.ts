@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsEmail, IsIn, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
 
@@ -25,12 +25,16 @@ export class CreateUserDto {
         lastname: string;
 
         @IsString()
+        @IsIn(['CC', 'CE', 'PA'])
+        docnum_type: string;
+
+        @IsString()
         @MinLength(1)
         docnum: string;
 
         @IsString()
         @MinLength(1)
-        phone: string;
+        phone: number;
 
         @IsBoolean()
         @IsOptional()
