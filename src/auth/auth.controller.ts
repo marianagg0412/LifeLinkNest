@@ -70,7 +70,7 @@ export class AuthController {
   }
 
   @Get('profile')
-  @Auth(ValidRoles.admin)
+  @Auth()
   privateRoute3(
     @GetUser() user: User,
   ){

@@ -53,7 +53,4 @@ export class CreateUserDto {
         @IsOptional()
         rol?: string[];
 
-        
-
-
 }
