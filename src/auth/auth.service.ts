@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtPayload } from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 
@@ -96,6 +97,28 @@ export class AuthService {
   private getJwtToken(payload: JwtPayload){
     const token= this.jwtService.sign(payload);
     return token;
+  }
+
+  async update(user: User, updateUserDto: UpdateUserDto) {
+
+    // const pokemon =await this.findOne(term);
+
+    // if(updateUserDto.tittle)
+    //   updateProductDto.tittle = updateProductDto.tittle.toLocaleLowerCase();
+
+
+    try{
+      
+      await user.updateOne(updateUserDto);
+      return {...user.toJSON(), ...updateUserDto};
+
+    } catch (error){
+
+      this.handleDBErrors(error);
+    
+    }
+
+    
   }
 
 

@@ -10,6 +10,7 @@ import { IncomingHttpHeaders } from 'http';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces/vaid-roles';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 @Controller('auth')
@@ -80,5 +81,17 @@ export class AuthController {
       user,
     }
   }
+
+  @Patch('edit-profile')
+  @Auth()
+  
+  updateProfile(
+    @GetUser() user: User,
+    @Body() updateUserDto: UpdateUserDto
+  ){
+
+    return this.authService.update(user, updateUserDto);
+  }
+  
 
 }
