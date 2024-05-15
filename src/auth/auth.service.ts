@@ -47,7 +47,7 @@ export class AuthService {
       
 
       const {name, email, phone}=user;
-      return {name, email, phone};
+      return {name, email, phone, token: this.getJwtToken({id: user.id})};
 
     }catch(error){
       console.log(error)
