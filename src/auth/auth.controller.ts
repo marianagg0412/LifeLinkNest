@@ -92,6 +92,18 @@ export class AuthController {
 
     return this.authService.update(user, updateUserDto);
   }
+
+  @Get('catalogue')
+  @Auth()
+  catalogue(
+    @GetUser() user: User,
+  ){
+    return {
+      ok: true,
+      message: 'Hola eres vip3',
+      user,
+    }
+  }
   
 
 }
