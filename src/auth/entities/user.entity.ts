@@ -1,70 +1,67 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Schema()
-export class User extends Document {
-  @Prop({
-    unique: true,
-    // index: true,
-  })
-  email: string;
+@Entity('users')
+export class User {
 
-  @Prop({
-    // select:false,
-    // index: true,
-  })
-  password: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Prop({
-    // select:false,
-    // index: true,
-  })
-  name: string;
+    @Column('text', {
+        unique: true
+    })
+    email: string;
 
-  @Prop({
-    // select:false,
-    // index: true,
-  })
-  lastname: string;
+    @Column('text', {
+        select: false
+    })
+    password: string;
 
-  @Prop({
-    unique: true,
-    sparse: true,
-    // index: true,
-  })
-  docnum: string;
+    @Column('text')
+    name:string;
 
-  @Prop({
-    //unique: true,
-    // index: true,
-  })
-  phone: string;
+    @Column('text')
+    lastname:string;
 
-  @Prop({
-    default: false,
-    // index: true,
-  })
-  donor: boolean;
+    @Column('text', {
+        unique: true,
+        nullable: false
+    })
+    docnum: string;
 
-  bloodType: string;
+    @Column('text')
+    phone: string;
 
-  @Prop({
-    default: false,
-    // index: true,
-  })
-  recipient: boolean;
+    @Column('bool', {
+        default: false
+    })
+    donor: boolean;
 
-  @Prop({
-    default: true,
-    // index: true,
-  })
-  isActive: boolean;
+    @Column('text')
+    bloodtype: string;
 
-  @Prop({
-    array: true,
-    default: ['user'],
-  })
-  rol: string[];
+    @Column('bool', {
+        default: false
+    })
+    recipient: boolean;
+
+    @Column('bool', {
+        default: true
+    })
+    isActive: boolean;
+
+    @Column('text',{
+        array: true,
+        default: ['user']
+    })
+    roles: string[];
+
+    @BeforeInsert()
+    checkFieldBIns(){
+        this.email = this.email.toLocaleLowerCase().trim();
+    }
+
+    @BeforeUpdate()
+    checkFieldBUp(){
+        this.checkFieldBIns();
+    }
 }
-
-export const UserSchema = SchemaFactory.createForClass(User);

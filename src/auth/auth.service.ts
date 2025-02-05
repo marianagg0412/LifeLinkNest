@@ -1,71 +1,88 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { LoginUserDto } from './dto';
-import { IsEmail } from 'class-validator';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { LoginUserDto } from './dto/login-user.dto';
+
 @Injectable()
 export class AuthService {
+
   constructor(
-    @InjectModel(User.name)
-    private readonly userModel: Model<User>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.userModel.findOne({
-      email: createUserDto.email,
-    });
-    if (existingUser) {
-      throw new BadRequestException('Email already exists.');
+    
+    try {
+      const{password, rol, ...userData} = createUserDto;
+
+      const user = this.userRepository.create({
+        ...userData,
+        password: bcrypt.hashSync(password, 10)
+      });
+
+      await this.userRepository.save(user);
+      delete user.password;
+
+      return {
+        ...user,
+        token: this.getJwtToken({id: user.id, rol: user.roles})
+      };
+    } catch (error) {
+      this.handleDBErrors(error);
     }
-    // Proceed with user creation if no existing user is found
-    const { password, ...userData } = createUserDto;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const user = new this.userModel({ ...userData, password: hashedPassword });
-    await user.save();
-    return { name: user.name, email: user.email, phone: user.phone };
   }
 
-  async login(loginUserDto: LoginUserDto) {
-    const { password, email } = loginUserDto;
+  async login (loginUserDto: LoginUserDto){
 
-    const user = await this.userModel.findOne({
-      email,
+    const {password, email} = loginUserDto
+
+    const user = await this.userRepository.findOne({
+
+      where: {email},
+      select: {email: true, password: true, id: true, roles: true}
     });
 
-    //console.log(password)
-    console.log(process.env.PORT);
+    if (!user)
+      throw new UnauthorizedException('Invalid credentials');
 
-    if (!user) throw new UnauthorizedException('Not valid credentials');
+    if(!bcrypt.compareSync(password, user.password))
+      throw new UnauthorizedException('Invalid credentials');
 
-    if (!bcrypt.compareSync(password, user.password))
-      throw new UnauthorizedException('Not valid credentials (password)');
-
-    const { name } = user;
-    return { name, email };
-
-    //TODO: retornat el jwt
+    return {
+      ...user,
+      token: this.getJwtToken({id: user.id, rol: user.roles})
+    }
   }
 
-  private handleDBErrors(error: any): never {
-    if (error.code === 11000) {
-      throw new BadRequestException(
-        'Duplicate key error: Algún dato asociado ya está vinculado con otra cuenta',
-      );
-    } 
-    // else if (error.code === 400){
-    //   throw new BadRequestException(
-    //     'Duplicate key error: Some data such as email or phone number already exists.',
-    //   );
-    // }
-    console.log(error);
-    throw new InternalServerErrorException('Please check your logs');
+  async checkAuthStatus(user: User) {
+    return {
+      ...user,
+      token: this.getJwtToken({id: user.id, rol: user.roles})
+    }
+  }
+
+  private getJwtToken(payload: JwtPayload){
+
+    const token = this.jwtService.sign(payload);
+    return token;
+
+  }
+
+  private handleDBErrors(error:any): never{
+    if(error.code === '23505')
+      throw new BadRequestException(error.detail)
+    console.log(error)
+
+    throw new InternalServerErrorException('pls check your logs')
   }
 }
