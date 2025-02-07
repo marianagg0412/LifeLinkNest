@@ -1,45 +1,29 @@
-import { IsArray, IsIn, IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsString, IsNumber, IsOptional, IsUrl, Min, IsIn } from "class-validator";
 
 export class CreateProductDto {
-
     @IsString()
-    @MinLength(1)
-    tittle: string;
+    name: string;
 
     @IsNumber()
-    @IsPositive()
-    @IsOptional()
-    price?: number;
+    @Min(0)
+    price: number;
 
     @IsString()
     @IsOptional()
     description?: string;
 
+    @IsUrl()
+    @IsOptional()
+    image?: string;
+
     @IsString()
-    @IsOptional()
-    slug?: string;
+    @IsIn(['Tejido Blando', 'Tejido Duro', 'Tejido Ocular'])
+    category: string;
 
-    @IsInt()
-    @IsPositive()
-    @IsOptional()
-    stock?: number;
+    @IsString()
+    use: string;
 
-    @IsString({ each: true})
-    @IsArray()
-    bloodType: string[];
-
-    @IsIn(['men', 'women'])
-    gender:string;
-
-    @IsString({each: true})
-    @IsArray()
-    @IsOptional()
-    tags?: string[];
-
-    @IsString({each: true})
-    @IsArray()
-    @IsOptional()
-    images?: string[];
-
-
+    @IsString()
+    @IsIn(['Ortopedia', 'Cardiología', 'Oftalmología', 'Cirugía Plástica'])
+    specialty: string;
 }

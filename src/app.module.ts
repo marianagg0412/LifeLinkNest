@@ -3,11 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config'; // For environment
 import { Module } from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 // import { MongooseModule, Schema } from '@nestjs/mongoose';
-import { ProductModule } from './product/product.module';
 import 'dotenv/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entities/user.entity';
+import { ProductModule } from './product/product.module';
 
 
 
@@ -47,8 +47,8 @@ import { User } from './auth/entities/user.entity';
 
 
     }),
-    // ProductModule,
-    AuthModule, 
+    AuthModule,
+    ProductModule, 
     
   ],
   

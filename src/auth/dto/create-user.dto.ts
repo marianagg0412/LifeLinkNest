@@ -2,6 +2,7 @@ import {
     IsArray,
     IsBoolean,
     IsEmail,
+    IsIn,
     IsOptional,
     IsString,
     Matches,
@@ -34,13 +35,17 @@ import {
     @IsString()
     @MinLength(1)
     docnum: string;
+
+    @IsString()
+    @IsIn(['CC', 'CE', 'PA'])
+    docnum_type: string;
   
     @IsString()
     @MinLength(1)
     phone: string;
   
     @IsString()
-    bloodtype: string;
+    bloodType: string;
   
     @IsBoolean()
     @IsOptional()

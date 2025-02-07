@@ -1,111 +1,102 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
-import { Model, isValidObjectId } from 'mongoose';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class ProductService {
-
-  private defaultLimit: number;
+  private readonly logger = new Logger('ProductService');
 
   constructor(
-    @InjectModel(Product.name)
-    private readonly productModel:Model<Product>
-  ){}
-
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product> 
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
-    createProductDto.tittle=createProductDto.tittle.toLocaleLowerCase();
-    try{
-      //insertion con modelo
-      //unica linea que se necesita sin validaciones
-      const product= await this.productModel.create(createProductDto);
+    try {
+      const product = this.productRepository.create(createProductDto);
+      await this.productRepository.save(product);
       return product;
-
     } catch (error) {
-      //num de error de que ya existe en la base de datos
-      this.handleExceptions(error);
+      this.handleDBExceptions(error);
     }
-    return createProductDto;
   }
 
-  findAll(paginationDto: PaginationDto) {
-    console.log(+process.env.DEFAULT_LIMIT)
-
-    const { limit = this.defaultLimit, offset=0 } = paginationDto;
-
-    return this.productModel.find()
-    .limit(limit)
-    .skip(offset)
-    .sort({
-      no: 1
-    })
-    .select('-__v');
+  async findAll(limit: number = 10, offset: number = 0) {
+    return await this.productRepository.find({
+      where: { isActive: 1 },
+      take: limit,
+      skip: offset,
+    });
   }
 
   async findOne(term: string) {
     let product: Product;
 
-    if (!isNaN(+term)){
-      product = await this.productModel.findOne({no: term});
+    if (isUUID(term)) {
+      product = await this.productRepository.findOne({
+        where: { id: term, isActive: 1 },
+      });
+    } else {
+      product = await this.productRepository
+        .createQueryBuilder('product')
+        .where('LOWER(product.name) = :name', { name: term.toLowerCase() })
+        .andWhere('product.isActive = :isActive', { isActive: true })
+        .getOne();
     }
 
-    //MONGO ID
-    if(!product && isValidObjectId(term)){
-      product=await this.productModel.findById(term);
+    if (!product) {
+      throw new NotFoundException(`Active product with term "${term}" not found`);
     }
-    //Name
-    if(!product){
-      product=await this.productModel.findOne({name: term.toLocaleLowerCase().trim()});
-    }
-
-    if(!product) 
-      throw new NotFoundException(`Pokemon with id, name or no "${term}" not found`);
 
     return product;
   }
 
-  async update(term: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.preload({ id, ...updateProductDto });
 
-    const pokemon =await this.findOne(term);
+    if (!product) throw new NotFoundException(`Product #${id} not found`);
 
-    if(updateProductDto.tittle)
-      updateProductDto.tittle = updateProductDto.tittle.toLocaleLowerCase();
-
-
-    try{
-      
-      await pokemon.updateOne(updateProductDto);
-      return {...pokemon.toJSON(), ...updateProductDto};
-
-    } catch (error){
-
-      this.handleExceptions(error);
-    
+    try {
+      await this.productRepository.save(product);
+      return product;
+    } catch (error) {
+      this.handleDBExceptions(error);
     }
-
-    
   }
 
-  async remove(id: string) {
-  
-    //BORRAR Y VERIFICA SI ALGO NO EXISTE CONSULTANDO SOLO UNA VEZ LA BASE DE DATOS
-    const {deletedCount} = await this.productModel.deleteOne({_id:id});
-    if(deletedCount===0)
-      throw new BadRequestException(`Product with id "${id} not found"`)
+  async deactivate(id: string) {
+    const product = await this.findOne(id);
+    
+    product.isActive = 0;
+    await this.productRepository.save(product);
 
-    return;
+    return { message: `Product #${id} has been deactivated.` };
   }
 
-  private handleExceptions (error: any) {
-    //num de error de que ya existe en la base de datos
-    if (error.code===11000){
-      throw new BadRequestException(`User already exists in db ${JSON.stringify(error.keyValue)}`)
-    }
-    console.log(error);
-    throw new InternalServerErrorException(`Can't create Pokemon = Chck server logs`);
+  async reactivate(id: string) {
+    const product = await this.productRepository.findOne({
+      where: { id, isActive: 0 },
+    });
+
+    if (!product) throw new NotFoundException(`Product #${id} is not deactivated.`);
+
+    product.isActive = 1;
+    await this.productRepository.save(product);
+
+    return { message: `Product #${id} has been reactivated.` };
+  }
+
+  private handleDBExceptions(error: any){
+
+    if(error.code === '23505')
+      throw new BadRequestException(error.detail);
+
+    this.logger.error(error)
+    throw new InternalServerErrorException('Unexpected error, check server logs');
+
   }
 }

@@ -23,6 +23,11 @@ export class User {
     lastname:string;
 
     @Column('text', {
+        nullable: false
+    })
+    docnum_type: string;
+
+    @Column('text', {
         unique: true,
         nullable: false
     })
@@ -37,7 +42,7 @@ export class User {
     donor: boolean;
 
     @Column('text')
-    bloodtype: string;
+    bloodType: string;
 
     @Column('bool', {
         default: false
