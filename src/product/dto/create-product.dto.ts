@@ -21,6 +21,7 @@ export class CreateProductDto {
     category: string;
 
     @IsString()
+    @IsIn(['Rehabilitación Ortopédica', 'Reparación de Heridas', 'Recuperación Visual', 'Mejora de la Función Cardíaca'])
     use: string;
 
     @IsString()

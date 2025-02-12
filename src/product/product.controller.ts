@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseGuards, Req } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -18,7 +18,8 @@ export class ProductController {
 
   @Auth(ValidRoles.admin, ValidRoles.user)
   @Get()
-  findAll() {
+  findAll(@Req() req) {
+    console.log('user:', req.user)
     return this.productService.findAll();
   }
 
