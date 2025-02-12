@@ -8,6 +8,7 @@ import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -76,6 +77,31 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
     return token;
 
+  }
+
+  async update(user: User, updateUserDto: UpdateUserDto) {
+
+    // const pokemon =await this.findOne(term);
+
+    // if(updateUserDto.tittle)
+    //   updateProductDto.tittle = updateProductDto.tittle.toLocaleLowerCase();
+
+    const userr = await this.userRepository.preload({
+      id: user.id, 
+      ...updateUserDto,
+    });
+
+    if(!userr)
+      throw new BadRequestException('User not found');
+
+    try {
+      await this.userRepository.save(userr);
+      return userr;
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+
+    
   }
 
   private handleDBErrors(error:any): never{
