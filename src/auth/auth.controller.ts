@@ -78,7 +78,7 @@ export class AuthController {
   ){
     return {
       ok: true,
-      message: 'Hola eres vip3',
+      message: 'Loggeado',
       user,
     }
   }
@@ -92,18 +92,6 @@ export class AuthController {
   ){
 
     return this.authService.update(user, updateUserDto);
-  }
-
-  @Get('get-user')
-  @Auth()
-  catalogue(
-    @GetUser() user: User,
-  ){
-    return {
-      ok: true,
-      message: 'Hola eres vip3',
-      user,
-    }
   }
   
 
