@@ -1,4 +1,5 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Order } from "src/order/entities/order.entity";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -69,4 +70,7 @@ export class User {
     checkFieldBUp(){
         this.checkFieldBIns();
     }
+
+    @OneToMany(() => Order, (order) => order.user, { cascade: true })
+    orders: Order[];
 }

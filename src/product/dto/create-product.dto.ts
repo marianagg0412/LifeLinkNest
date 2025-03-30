@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsUrl, Min, IsIn } from "class-validator";
+import { IsString, IsNumber, IsOptional, IsUrl, Min, IsIn, IsInt } from "class-validator";
 
 export class CreateProductDto {
     @IsString()
@@ -27,4 +27,8 @@ export class CreateProductDto {
     @IsString()
     @IsIn(['Ortopedia', 'Cardiología', 'Oftalmología', 'Cirugía Plástica'])
     specialty: string;
+
+    @IsInt()
+    @Min(0)
+    stock: number;
 }
