@@ -43,5 +43,9 @@ export class Product {
             default: 1
         })
         isActive: number;
-    
+
+        @Column('int', {
+            default: 0
+        })
+        stock: number;
 }
