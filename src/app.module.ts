@@ -1,5 +1,5 @@
-
-import { ConfigModule, ConfigService } from '@nestjs/config'; // For environment variables (optional)
+/* eslint-disable prettier/prettier */
+import { ConfigModule } from '@nestjs/config'; // For environment variables (optional)
 import { Module } from '@nestjs/common';
 import 'dotenv/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,10 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entities/user.entity';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-
-
-
-
+import { MedicalRecordModule } from './medical-record/medical-record.module';
 
 @Module({
   imports: [
@@ -23,21 +20,17 @@ import { OrderModule } from './order/order.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
       },
       entities: [User],
       synchronize: true,
       autoLoadEntities: true,
       logging: true,
-      
-
-
     }),
     AuthModule,
     ProductModule,
-    OrderModule, 
-    
+    OrderModule,
+    MedicalRecordModule,
   ],
-  
 })
 export class AppModule {}
