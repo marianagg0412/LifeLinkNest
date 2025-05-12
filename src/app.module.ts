@@ -7,7 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './auth/entities/user.entity';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-import { MedicalRecordModule } from './medical-record/medical-record.module';
+import { MedicalVisitModule } from './medical-visit/medical-visit.module';
+import { AllergyModule } from './allergy/allergy.module';
+import { MedicationModule } from './medication/medication.module';
+import { MedicalConditionModule } from './medical-condition/medical-condition.module';
 
 @Module({
   imports: [
@@ -30,7 +33,10 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     AuthModule,
     ProductModule,
     OrderModule,
-    MedicalRecordModule,
+    MedicalVisitModule,
+    AllergyModule,
+    MedicationModule,
+    MedicalConditionModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

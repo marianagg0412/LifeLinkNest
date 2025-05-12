@@ -1,5 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { MedicalRecord } from 'src/medical-record/entities/medical-record.entity';
+import { Allergy } from 'src/allergy/entities/allergy.entity';
+import { MedicalCondition } from 'src/medical-condition/entities/medical-condition.entity';
+import { MedicalVisit } from 'src/medical-visit/entities/medical-visit.entity';
+import { Medication } from 'src/medication/entities/medication.entity';
 import { Order } from 'src/order/entities/order.entity';
 import {
   BeforeInsert,
@@ -53,15 +56,6 @@ export class User {
   @Column('text')
   bloodType: string;
 
-  @Column('text', { nullable: true})
-  medicalConditions: string;
-
-  @Column('text', { nullable: true })
-  allergies: string;
-
-  @Column('text', { nullable: true })
-  medications: string;
-
   @Column('bool', {
     default: false,
   })
@@ -91,7 +85,15 @@ export class User {
   @OneToMany(() => Order, (order) => order.user, { cascade: true })
   orders: Order[];
 
-  @OneToMany(() => MedicalRecord, (record) => record.user)
-  medicalRecords: MedicalRecord[];
+  @OneToMany(() => Allergy, (allergy) => allergy.user, { cascade: true })
+  allergies: Allergy[];
 
+  @OneToMany(() => Medication, (medication) => medication.user, { cascade: true })
+  medications: Medication[];
+
+  @OneToMany(() => MedicalVisit, (visit) => visit.user, { cascade: true })
+  medicalVisits: MedicalVisit[];
+
+  @OneToMany(() => MedicalCondition, (condition) => condition.user, { cascade: true })
+  medicalConditions: MedicalCondition[];
 }

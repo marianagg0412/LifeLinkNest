@@ -33,17 +33,5 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     bloodType?: string;
-
-    @IsOptional()
-    @IsString()
-    medicalConditions?: string;
-
-    @IsOptional()
-    @IsString()
-    allergies?: string;
-
-    @IsOptional()
-    @IsString()
-    medications?: string;
 }
 
